@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>连栗炮固定式效果计算器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Yu Gothic', '游ゴシック', YuGothic, '游ゴシック体', 'ヒラギノ角ゴ Pro W3', 'メイリオ', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0ff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 1300px;
+            width: 100%;
+            background: rgba(10, 15, 35, 0.85);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            margin: 20px auto;
+            border: 2px solid #4a4a8a;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #8b0000 0%, #b22222 100%);
+            color: #ffd700;
+            text-align: center;
+            padding: 20px;
+            border-bottom: 3px solid #ffd700;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            margin-top: 10px;
+            color: #ffcc00;
+        }
+        
+        .card-info {
+            background: rgba(30, 30, 60, 0.7);
+            padding: 15px;
+            margin: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #b22222;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        @media (max-width: 992px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .calculator-section, .table-section {
+            background: rgba(40, 40, 80, 0.6);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #5a5a9a;
+        }
+        
+        .section-title {
+            color: #ffd700;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #b22222;
+            font-size: 1.4rem;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(20, 20, 40, 0.8);
+            border: 1px solid #6a6aaa;
+            border-radius: 5px;
+            color: #e0e0ff;
+            font-size: 1rem;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        #calculate-full {
+            background: linear-gradient(to bottom, #4CAF50, #2E7D32);
+            color: white;
+        }
+        
+        #calculate-full:hover {
+            background: linear-gradient(to bottom, #66BB6A, #388E3C);
+            transform: translateY(-2px);
+        }
+        
+        #calculate-part1 {
+            background: linear-gradient(to bottom, #2196F3, #1565C0);
+            color: white;
+        }
+        
+        #calculate-part1:hover {
+            background: linear-gradient(to bottom, #42A5F5, #1976D2);
+            transform: translateY(-2px);
+        }
+        
+        #reset {
+            background: linear-gradient(to bottom, #f44336, #c62828);
+            color: white;
+        }
+        
+        #reset:hover {
+            background: linear-gradient(to bottom, #ef5350, #d32f2f);
+            transform: translateY(-2px);
+        }
+        
+        .result-box {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 250px;
+            border: 1px solid #6a6aaa;
+            overflow-y: auto;
+            max-height: 400px;
+            margin-top: 20px;
+        }
+        
+        .success {
+            color: #4CAF50;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .failure {
+            color: #f44336;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .combination {
+            background: rgba(50, 50, 100, 0.5);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #ffd700;
+        }
+        
+        .combination-title {
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+        
+        .explanation {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #6a6aaa;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        .info-card {
+            background: rgba(50, 50, 100, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 3px solid #ffd700;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: rgba(20, 20, 40, 0.8);
+        }
+        
+        th {
+            background: #8b0000;
+            color: #ffd700;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #6a6aaa;
+        }
+        
+        td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #6a6aaa;
+        }
+        
+        tr:nth-child(even) {
+            background: rgba(30, 30, 60, 0.5);
+        }
+        
+        .valid-cell {
+            background: rgba(0, 100, 0, 0.4);
+            color: #7cfc00;
+            font-weight: bold;
+        }
+        
+        .invalid-cell {
+            background: rgba(100, 0, 0, 0.4);
+            color: #ff6b6b;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            font-size: 0.9rem;
+            color: #aaa;
+            border-top: 1px solid #444;
+            width: 100%;
+        }
+        
+        .strategy {
+            background: rgba(60, 40, 80, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 3px solid #9b59b6;
+        }
+        
+        .info-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background-color: #4a4a8a;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            margin-right: 5px;
+            font-size: 12px;
+            cursor: help;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+  			<link rel="icon" href="https://fuakyourmo.github.io/favicon.ico" type="image/x-icon">
+  			<link rel="shortcut icon" href="https://fuakyourmo.github.io/favicon.ico" type="image/x-icon">
+            <h1>连栗炮固定式效果计算器</h1>
+            <div class="subtitle">计算器 + 真值表整合版（超量1-9阶，融合1-9星）</div>
+        </header>
+        
+        <div class="card-info">
+            <p>【陷阱卡效果说明】</p>
+            <p>1. 计算双方手卡和场上卡总数（N）</p>
+            <p>2. 从额外卡组除外2只相同阶级的超量怪兽（X阶）和1只融合怪兽（Y星），满足 2X + Y = N</p>
+            <p>3. 选择对方场上一只表侧表示怪兽（等级/阶级=M）</p>
+            <p>4. 从除外的怪兽中选择1只超量怪兽（X阶）和1只融合怪兽（Y星），满足 X + Y = M</p>
+            <p>5. 若成功，对方场上所有卡除外</p>
+        </div>
+        
+        <div class="content">
+            <!-- 左侧：计算器部分 -->
+            <div class="calculator-section">
+                <h2 class="section-title">效果计算器</h2>
+                
+                <div class="input-group">
+                    <label for="myHand">自己手卡数量</label>
+                    <input type="number" id="myHand" min="0" value="5">
+                </div>
+                
+                <div class="input-group">
+                    <label for="opHand">对方手卡数量</label>
+                    <input type="number" id="opHand" min="0" value="5">
+                </div>
+                
+                <div class="input-group">
+                    <label for="myField">自己场上卡数量</label>
+                    <input type="number" id="myField" min="0" value="3">
+                </div>
+                
+                <div class="input-group">
+                    <label for="opField">对方场上卡数量</label>
+                    <input type="number" id="opField" min="0" value="4">
+                </div>
+                
+                <div class="input-group">
+                    <label for="monsterRank">对方怪兽等级/阶级 (M)</label>
+                    <input type="number" id="monsterRank" min="1" value="8">
+                </div>
+                
+                <div class="buttons">
+                    <button id="calculate-full">计算整个效果</button>
+                    <button id="calculate-part1">仅第一部分</button>
+                    <button id="reset">重置</button>
+                </div>
+                
+                <div class="result-box" id="result">
+                    <p>请输入游戏状态数据并点击计算按钮...</p>
+                </div>
+                
+                <div class="strategy">
+                    <h3>战术建议</h3>
+                    <p>• 想增加射程 → 带<span class="highlight">高星级融合怪兽</span></p>
+                    <p>• 想增加射击宽度 → 带<span class="highlight">多种阶数的超量怪兽</span></p>
+                    <p>• 灵活调整额外卡组构成以应对不同局面</p>
+                </div>
+            </div>
+            
+            <!-- 右侧：真值表部分 -->
+            <div class="table-section">
+                <h2 class="section-title">真值表（超量1-9阶，融合1-9星）</h2>
+                
+                <div class="info-card">
+                    <p><span class="info-icon">?</span> 表格说明：</p>
+                    <p>• <span class="highlight">绿色单元格</span>：有效组合（全场卡数量N）</p>
+                    <p>• <span class="highlight">红色单元格</span>：无效组合（Y=M-X超出1-9范围）</p>
+                    <p>• 空白单元格：无效组合（Y=M-X为负数或0）</p>
+                    <p class="highlight">绿色数字代表：当选择目标等级M和超量阶级X时，融合等级Y=M-X在1-9范围内，组合有效</p>
+                </div>
+                
+                <table id="truth-table">
+                    <thead>
+                        <tr>
+                            <th>目标等级<br>(M)</th>
+                            <th>1阶超量</th>
+                            <th>2阶超量</th>
+                            <th>3阶超量</th>
+                            <th>4阶超量</th>
+                            <th>5阶超量</th>
+                            <th>6阶超量</th>
+                            <th>7阶超量</th>
+                            <th>8阶超量</th>
+                            <th>9阶超量</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table will be populated by JavaScript -->
+                    </tbody>
+                </table>
+                
+                <div class="info-card">
+                    <p>计算公式：</p>
+                    <p>• 全场卡数量 N = X + M</p>
+                    <p>• 融合怪兽等级 Y = M - X</p>
+                    <p>• 要求：Y必须在1-9范围内</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            连栗炮固定式效果计算器 | 基于游戏王卡片效果扩展真值表（超量1-9阶，融合1-9星）
+        </div>
+    </div>
+
+    <script>
+        // 初始化真值表（1-9阶超量，1-9星融合）
+        function initTruthTable() {
+            const tableBody = document.querySelector('#truth-table tbody');
+            tableBody.innerHTML = '';
+            
+            // 目标等级从1到9
+            for (let m = 1; m <= 9; m++) {
+                const row = document.createElement('tr');
+                
+                // 添加目标等级单元格
+                const levelCell = document.createElement('td');
+                levelCell.textContent = m + '星';
+                row.appendChild(levelCell);
+                
+                // 添加各阶超量对应的N值单元格（1-9阶）
+                for (let x = 1; x <= 9; x++) {
+                    const n = x + m;
+                    const y = m - x;
+                    
+                    const cell = document.createElement('td');
+                    
+                    if (y >= 1 && y <= 9) {
+                        cell.textContent = n;
+                        cell.className = 'valid-cell';
+                        cell.title = `有效组合：超量阶级${x} + 融合等级${y} = ${m}\n全场卡数量N=${n}`;
+                    } else if (y <= 0) {
+                        cell.textContent = '-';
+                        cell.className = 'invalid-cell';
+                        cell.title = `无效：融合等级Y = ${m} - ${x} = ${y} (超出1-9范围)`;
+                    } else {
+                        cell.textContent = '-';
+                        cell.className = 'invalid-cell';
+                        cell.title = `无效：融合等级Y = ${m} - ${x} = ${y} (超出1-9范围)`;
+                    }
+                    
+                    row.appendChild(cell);
+                }
+                
+                tableBody.appendChild(row);
+            }
+        }
+        
+        // 计算整个效果
+        function calculateFull() {
+            // 获取输入值
+            const myHand = parseInt(document.getElementById('myHand').value) || 0;
+            const opHand = parseInt(document.getElementById('opHand').value) || 0;
+            const myField = parseInt(document.getElementById('myField').value) || 0;
+            const opField = parseInt(document.getElementById('opField').value) || 0;
+            const M = parseInt(document.getElementById('monsterRank').value);
+            
+            // 计算N（全场卡数量）
+            const N = myHand + opHand + myField + opField;
+            
+            // 计算X和Y
+            const X = N - M;
+            const Y = 2 * M - N;
+            
+            const resultDiv = document.getElementById('result');
+            
+            // 检查X,Y是否在1~12之间
+            if (X >= 1 && X <= 12 && Y >= 1 && Y <= 12) {
+                resultDiv.innerHTML = `
+                    <div class="success">效果可以完整发动！</div>
+                    <div class="combination">
+                        <div class="combination-title">第一部分：除外怪兽</div>
+                        <p>需要除外2只阶级为<span class="highlight">${X}</span>的超量怪兽和1只等级为<span class="highlight">${Y}</span>的融合怪兽</p>
+                        <p>计算：2 × ${X} + ${Y} = ${2*X + Y} = ${N}（双方手卡和场上卡总数）</p>
+                    </div>
+                    <div class="combination">
+                        <div class="combination-title">第二部分：返回怪兽</div>
+                        <p>使用1只阶级<span class="highlight">${X}</span>的超量怪兽和1只等级<span class="highlight">${Y}</span>的融合怪兽</p>
+                        <p>计算：${X} + ${Y} = ${X+Y} = ${M}（对方怪兽等级/阶级）</p>
+                    </div>
+                    <div class="explanation">
+                        <p class="highlight">效果处理：</p>
+                        <p>1. 将选中的2只超量怪兽和1只融合怪兽从额外卡组除外</p>
+                        <p>2. 选择对方场上一只表侧表示怪兽（等级/阶级=${M}）</p>
+                        <p>3. 将除外区的1只超量怪兽（阶级${X}）和1只融合怪兽（等级${Y}）返回额外卡组</p>
+                        <p>4. 对方场上的卡全部除外！</p>
+                    </div>
+                `;
+            } else {
+                // 查找第一部分所有可能组合
+                const part1Combinations = getPart1Combinations(N);
+                
+                if (part1Combinations.length === 0) {
+                    resultDiv.innerHTML = `
+                        <div class="failure">效果无法发动！</div>
+                        <p>第一部分就无法满足：没有找到超量阶级X和融合等级Y（1~12）使得 2X + Y = ${N}。</p>
+                        <p>请检查输入的游戏状态数据。</p>
+                    `;
+                } else {
+                    let combinationsHTML = '';
+                    part1Combinations.forEach(comb => {
+                        combinationsHTML += `
+                            <div class="combination">
+                                <p>2只阶级<span class="highlight">${comb.X}</span>的超量怪兽</p>
+                                <p>1只等级<span class="highlight">${comb.Y}</span>的融合怪兽</p>
+                                <p>计算：2 × ${comb.X} + ${comb.Y} = ${2*comb.X + comb.Y} = ${N}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    resultDiv.innerHTML = `
+                        <div class="failure">第一部分可以发动，但第二部分无法完成！</div>
+                        <p>第一部分：找到${part1Combinations.length}种组合满足 2X + Y = ${N}：</p>
+                        ${combinationsHTML}
+                        <div class="explanation">
+                            <p class="highlight">问题分析：</p>
+                            <p>第二部分需要满足 X + Y = ${M}，但在第一部分除外的怪兽组合中：</p>
+                            <p>• 超量怪兽的阶级为固定值（每种组合的X相同）</p>
+                            <p>• 融合怪兽的等级也为固定值（每种组合的Y相同）</p>
+                            <p>没有组合同时满足 X + Y = ${M}，因此第二部分无法进行。</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        // 仅计算第一部分
+        function calculatePart1() {
+            // 获取输入值（不需要M）
+            const myHand = parseInt(document.getElementById('myHand').value) || 0;
+            const opHand = parseInt(document.getElementById('opHand').value) || 0;
+            const myField = parseInt(document.getElementById('myField').value) || 0;
+            const opField = parseInt(document.getElementById('opField').value) || 0;
+            
+            // 计算N
+            const N = myHand + opHand + myField + opField;
+            
+            // 获取所有可能组合
+            const part1Combinations = getPart1Combinations(N);
+            const resultDiv = document.getElementById('result');
+            
+            if (part1Combinations.length === 0) {
+                resultDiv.innerHTML = `
+                    <div class="failure">第一部分无法满足！</div>
+                    <p>没有找到超量阶级X和融合等级Y（1~12）使得 2X + Y = ${N}。</p>
+                    <p>请检查输入的游戏状态数据。</p>
+                `;
+            } else {
+                let combinationsHTML = '';
+                part1Combinations.forEach(comb => {
+                    combinationsHTML += `
+                        <div class="combination">
+                            <p>2只阶级<span class="highlight">${comb.X}</span>的超量怪兽</p>
+                            <p>1只等级<span class="highlight">${comb.Y}</span>的融合怪兽</p>
+                            <p>计算：2 × ${comb.X} + ${comb.Y} = ${2*comb.X + comb.Y} = ${N}</p>
+                        </div>
+                    `;
+                });
+                
+                resultDiv.innerHTML = `
+                    <div class="success">第一部分可以发动！</div>
+                    <p>找到${part1Combinations.length}种组合满足 2X + Y = ${N}：</p>
+                    ${combinationsHTML}
+                    <div class="explanation">
+                        <p class="highlight">注意事项：</p>
+                        <p>• 需要额外卡组中有2只相同阶级（X）的超量怪兽</p>
+                        <p>• 需要额外卡组中有1只特定等级（Y）的融合怪兽</p>
+                        <p>• 发动第一部分后，需要对方场上有表侧表示怪兽才能进行第二部分</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 获取第一部分所有可能组合
+        function getPart1Combinations(N) {
+            const combinations = [];
+            
+            // X（超量阶级）范围：1-12
+            // Y（融合等级）范围：1-12
+            for (let X = 1; X <= 12; X++) {
+                const Y = N - 2 * X;
+                if (Y >= 1 && Y <= 12) {
+                    combinations.push({ X, Y });
+                }
+            }
+            
+            return combinations;
+        }
+        
+        // 重置表单
+        function resetForm() {
+            document.getElementById('myHand').value = '5';
+            document.getElementById('opHand').value = '5';
+            document.getElementById('myField').value = '3';
+            document.getElementById('opField').value = '4';
+            document.getElementById('monsterRank').value = '8';
+            document.getElementById('result').innerHTML = '请输入游戏状态数据并点击计算按钮...';
+        }
+        
+        // 事件监听
+        document.getElementById('calculate-full').addEventListener('click', calculateFull);
+        document.getElementById('calculate-part1').addEventListener('click', calculatePart1);
+        document.getElementById('reset').addEventListener('click', resetForm);
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initTruthTable();
+        });
+    </script>
+</body>
+</html>
